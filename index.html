@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReTrace — Elk kind veilig terug</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --yellow: #FFD600;
+      --orange: #FF6B00;
+      --blue:   #1A1AFF;
+      --green:  #00C853;
+      --red:    #FF1744;
+      --dark:   #0D0D1A;
+      --white:  #FFFFFF;
+      --panel:  #1C1C2E;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--dark);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%;
+      background: var(--yellow);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 0 var(--orange);
+    }
+    header .logo-text {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      color: var(--dark);
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+    header .logo-badge {
+      background: var(--orange);
+      color: var(--white);
+      font-size: 0.6rem;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      align-self: flex-end;
+      margin-bottom: 4px;
+    }
+
+    /* ── MAIN CONTAINER ── */
+    main {
+      width: 100%;
+      max-width: 480px;
+      padding: 28px 20px 60px;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── LOADING ── */
+    #screen-loading {
+      text-align: center;
+      padding-top: 80px;
+    }
+    .spinner {
+      width: 56px; height: 56px;
+      border: 5px solid var(--panel);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      color: var(--yellow);
+      letter-spacing: 2px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      border: 3px solid transparent;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+    }
+    .card.yellow::before { background: var(--yellow); }
+    .card.orange::before { background: var(--orange); }
+    .card.green::before  { background: var(--green);  }
+    .card.red::before    { background: var(--red);    }
+    .card.blue::before   { background: var(--blue);   }
+
+    /* ── CONTACT SCREEN ── */
+    .hero-label {
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--orange);
+      margin-bottom: 6px;
+    }
+    .hero-name {
+      font-family: 'Bangers', cursive;
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--yellow);
+      margin-bottom: 20px;
+      word-break: break-word;
+    }
+    .contact-block {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+      color: inherit;
+      border: 2px solid transparent;
+    }
+    .contact-block:hover { background: rgba(255,255,255,0.1); border-color: var(--yellow); }
+    .contact-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .contact-icon.call  { background: var(--green); }
+    .contact-icon.msg   { background: var(--blue);  }
+    .contact-info label {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.5);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .contact-info span {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .extra-note {
+      background: rgba(255,214,0,0.1);
+      border: 1.5px solid var(--yellow);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.8);
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+    .extra-note strong { color: var(--yellow); }
+
+    /* ── URGENCY BANNER ── */
+    .urgency {
+      background: var(--red);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .urgency .emo { font-size: 1.5rem; }
+
+    /* ── REGISTRATION ── */
+    .screen-title {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      color: var(--yellow);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .screen-sub {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 8px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--yellow);
+      background: rgba(255,214,0,0.05);
+    }
+    .form-group input::placeholder { color: rgba(255,255,255,0.3); font-weight: 400; }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      font-family: 'Bangers', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s;
+      text-align: center;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--yellow);
+      color: var(--dark);
+      box-shadow: 0 5px 0 var(--orange);
+    }
+    .btn-primary:hover { box-shadow: 0 7px 0 var(--orange); transform: translateY(-2px); }
+    .btn-secondary {
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      border: 2px solid rgba(255,255,255,0.15);
+      font-size: 0.9rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-top: 10px;
+    }
+    .btn-danger {
+      background: var(--red);
+      color: var(--white);
+      box-shadow: 0 5px 0 #aa0000;
+    }
+    .btn-green {
+      background: var(--green);
+      color: var(--dark);
+      box-shadow: 0 5px 0 #007a30;
+    }
+
+    /* ── EDIT/DELETE SCREEN ── */
+    .manage-link {
+      text-align: center;
+      margin-top: 28px;
+    }
+    .manage-link button {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.8rem;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .manage-link button:hover { color: rgba(255,255,255,0.6); }
+
+    /* ── PIN INPUT ── */
+    .pin-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .pin-digit {
+      width: 60px; height: 70px;
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--white);
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      outline: none;
+    }
+    .pin-digit:focus { border-color: var(--yellow); }
+
+    /* ── TOAST / ALERT ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--panel);
+      border: 2px solid var(--yellow);
+      color: var(--white);
+      padding: 14px 24px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 999;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { border-color: var(--red); }
+
+    /* ── ERROR SCREEN ── */
+    .error-emoji { font-size: 4rem; text-align: center; margin-bottom: 16px; }
+    .error-title { font-family: 'Bangers', cursive; font-size: 1.8rem; color: var(--red); text-align: center; margin-bottom: 8px; }
+    .error-msg { text-align: center; color: rgba(255,255,255,0.6); font-size: 0.95rem; line-height: 1.5; }
+
+    /* ── SUCCESS ── */
+    .success-wrapper { text-align: center; padding: 20px 0; }
+    .success-emoji { font-size: 5rem; margin-bottom: 16px; display: block; }
+    .success-title { font-family: 'Bangers', cursive; font-size: 2.2rem; color: var(--green); margin-bottom: 10px; letter-spacing: 1px; }
+    .success-msg { color: rgba(255,255,255,0.7); font-size: 0.95rem; line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 20px;
+      color: rgba(255,255,255,0.2);
+      font-size: 0.75rem;
+    }
+    footer a { color: rgba(255,255,255,0.3); text-decoration: none; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 2px solid rgba(255,255,255,0.07);
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo-text">ReTrace</span>
+  <span class="logo-badge">⚡ veiligheidsbandje</span>
+</header>
+
+<main>
+
+  <!-- LOADING -->
+  <div id="screen-loading" class="screen active">
+    <div class="spinner"></div>
+    <p class="loading-text">Even laden…</p>
+  </div>
+
+  <!-- ERROR: geen ID in URL -->
+  <div id="screen-no-id" class="screen">
+    <div class="card yellow">
+      <div class="error-emoji">🤔</div>
+      <div class="error-title">Geen bandje-ID gevonden</div>
+      <div class="error-msg">Scan de QR-code op het bandje om verder te gaan. Typ de URL niet manueel in.</div>
+    </div>
+  </div>
+
+  <!-- CONTACT TONEN (bandje al geregistreerd) -->
+  <div id="screen-contact" class="screen">
+    <div class="urgency">
+      <span class="emo">🚨</span>
+      <span>Je hebt een verloren kind gevonden. Neem direct contact op met de ouder!</span>
+    </div>
+    <div class="card yellow">
+      <p class="hero-label">Verloren kind</p>
+      <div class="hero-name" id="contact-name">—</div>
+      <a id="contact-call" href="#" class="contact-block">
+        <div class="contact-icon call">📞</div>
+        <div class="contact-info">
+          <label>Bel de ouder</label>
+          <span id="contact-phone">—</span>
+        </div>
+      </a>
+      <a id="contact-sms" href="#" class="contact-block">
+        <div class="contact-icon msg">💬</div>
+        <div class="contact-info">
+          <label>Stuur een bericht</label>
+          <span id="contact-phone2">—</span>
+        </div>
+      </a>
+      <div class="extra-note" id="contact-note-wrapper" style="display:none">
+        <strong>Extra info van de ouder:</strong><br />
+        <span id="contact-note"></span>
+      </div>
+    </div>
+    <div class="manage-link">
+      <button onclick="showPinScreen('manage')">Ben jij de ouder? Gegevens beheren</button>
+    </div>
+  </div>
+
+  <!-- REGISTRATIE (nieuw bandje) -->
+  <div id="screen-register" class="screen">
+    <div class="screen-title">Bandje activeren 🎉</div>
+    <p class="screen-sub">Vul de gegevens in zodat iemand jou kan bereiken als je kindje verloren loopt.</p>
+    <div class="card orange">
+      <div class="form-group">
+        <label>Voornaam van het kind</label>
+        <input type="text" id="reg-childname" placeholder="bv. Emma" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>Telefoonnummer ouder / voogd</label>
+        <input type="tel" id="reg-phone" placeholder="bv. 0495 12 34 56" autocomplete="tel" />
+        <p class="form-hint">Dit nummer zien mensen wanneer ze het bandje scannen.</p>
+      </div>
+      <div class="form-group">
+        <label>Extra info (optioneel)</label>
+        <input type="text" id="reg-note" placeholder="bv. spreekt enkel Frans" maxlength="80" />
+        <p class="form-hint">Allergieën, taal, medische info — max. 80 tekens.</p>
+      </div>
+      <hr class="divider" />
+      <div class="form-group">
+        <label>Kies een 4-cijferige PIN</label>
+        <div class="pin-row">
+          <input class="pin-digit" id="pin0" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+          <input class="pin-digit" id="pin1" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+          <input class="pin-digit" id="pin2" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+          <input class="pin-digit" id="pin3" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+        </div>
+        <p class="form-hint" style="text-align:center">Onthoud deze PIN — je hebt hem nodig om later gegevens te wijzigen of te verwijderen.</p>
+      </div>
+      <button class="btn btn-primary" onclick="handleRegister()">Bandje activeren ⚡</button>
+    </div>
+  </div>
+
+  <!-- PIN INVOEREN (voor beheer) -->
+  <div id="screen-pin" class="screen">
+    <div class="screen-title">🔒 PIN invoeren</div>
+    <p class="screen-sub">Voer je 4-cijferige PIN in om je gegevens te beheren.</p>
+    <div class="card blue">
+      <div class="pin-row">
+        <input class="pin-digit" id="mpin0" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+        <input class="pin-digit" id="mpin1" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+        <input class="pin-digit" id="mpin2" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+        <input class="pin-digit" id="mpin3" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+      </div>
+      <button class="btn btn-primary" onclick="verifyPin()">Bevestig PIN</button>
+      <button class="btn btn-secondary" onclick="goBack()">← Annuleren</button>
+    </div>
+  </div>
+
+  <!-- BEHEER (gegevens aanpassen / verwijderen) -->
+  <div id="screen-manage" class="screen">
+    <div class="screen-title">⚙️ Gegevens beheren</div>
+    <p class="screen-sub">Pas de informatie aan of verwijder het bandje volledig.</p>
+    <div class="card green">
+      <div class="form-group">
+        <label>Voornaam van het kind</label>
+        <input type="text" id="edit-childname" placeholder="bv. Emma" />
+      </div>
+      <div class="form-group">
+        <label>Telefoonnummer ouder / voogd</label>
+        <input type="tel" id="edit-phone" placeholder="bv. 0495 12 34 56" />
+      </div>
+      <div class="form-group">
+        <label>Extra info (optioneel)</label>
+        <input type="text" id="edit-note" placeholder="bv. spreekt enkel Frans" maxlength="80" />
+      </div>
+      <button class="btn btn-green" onclick="handleUpdate()">💾 Wijzigingen opslaan</button>
+      <button class="btn btn-secondary" onclick="goBack()">← Annuleren</button>
+    </div>
+    <div class="card red" style="margin-top:20px">
+      <p style="font-size:0.9rem; color:rgba(255,255,255,0.7); margin-bottom:16px; line-height:1.5">
+        <strong style="color:var(--red)">Bandje wissen (GDPR)</strong><br/>
+        Alle gegevens worden permanent verwijderd. Het bandje wordt terug 'nieuw' en kan opnieuw geregistreerd worden.
+      </p>
+      <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Gegevens permanent wissen</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="screen-success" class="screen">
+    <div class="card green">
+      <div class="success-wrapper">
+        <span class="success-emoji">🎉</span>
+        <div class="success-title">Bandje geactiveerd!</div>
+        <p class="success-msg">
+          Super! Het bandje van <strong id="success-name"></strong> is nu actief.<br /><br />
+          Iemand die het bandje scant ziet meteen jouw telefoonnummer en kan je bellen.
+        </p>
+      </div>
+    </div>
+    <a href="#" onclick="window.location.reload()" class="btn btn-primary" style="margin-top:8px">Bekijk de contactpagina</a>
+  </div>
+
+  <!-- DELETED -->
+  <div id="screen-deleted" class="screen">
+    <div class="card red">
+      <div class="success-wrapper">
+        <span class="success-emoji">🗑️</span>
+        <div class="success-title" style="color:var(--red)">Gegevens verwijderd</div>
+        <p class="success-msg">
+          Alle gegevens zijn permanent gewist. Het bandje kan opnieuw geregistreerd worden door de volgende gebruiker.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <a href="https://retrace.be" target="_blank">ReTrace</a> · Veiligheidsbandje voor kinderen<br/>
+  Gegevens worden opgeslagen conform GDPR
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ── CONFIG ──────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDFMem732km2LidNiQ4XNEznc1GjvglYWQ",
+    authDomain:        "retrace-d058f.firebaseapp.com",
+    projectId:         "retrace-d058f",
+    storageBucket:     "retrace-d058f.firebasestorage.app",
+    messagingSenderId: "185910398230",
+    appId:             "1:185910398230:web:30f98ba42c28fe5de89437",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // ── STATE ────────────────────────────────────────────────
+  let bandjeId   = null;
+  let currentData = null;
+  let pinAction  = null; // 'manage'
+
+  // ── HELPERS ──────────────────────────────────────────────
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function toast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    void t.offsetWidth;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Simpele PIN hash (XOR + sum, goed genoeg voor dit gebruik)
+  function hashPin(pin) {
+    return pin.split('').reduce((a, c, i) => a + (parseInt(c) * (i + 7)), 0).toString(36);
+  }
+
+  function getPin(prefix) {
+    return [0,1,2,3].map(i => document.getElementById(prefix + i).value).join('');
+  }
+
+  // ── PIN DIGIT AUTO-ADVANCE ────────────────────────────────
+  function setupPinInputs(prefix) {
+    [0,1,2,3].forEach(i => {
+      const el = document.getElementById(prefix + i);
+      el.addEventListener('input', () => {
+        el.value = el.value.slice(-1);
+        if (el.value && i < 3) document.getElementById(prefix + (i+1)).focus();
+      });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !el.value && i > 0)
+          document.getElementById(prefix + (i-1)).focus();
+      });
+    });
+  }
+  setupPinInputs('pin');
+  setupPinInputs('mpin');
+
+  // ── INIT ─────────────────────────────────────────────────
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    bandjeId = params.get('id');
+
+    if (!bandjeId) { show('no-id'); return; }
+
+    try {
+      const snap = await getDoc(doc(db, 'bandjes', bandjeId));
+      if (snap.exists()) {
+        currentData = snap.data();
+        showContact(currentData);
+      } else {
+        show('register');
+      }
+    } catch (err) {
+      console.error(err);
+      toast('Verbindingsfout. Probeer opnieuw.', true);
+      show('no-id');
+    }
+  }
+
+  function showContact(data) {
+    document.getElementById('contact-name').textContent   = data.childName;
+    document.getElementById('contact-phone').textContent  = data.phone;
+    document.getElementById('contact-phone2').textContent = data.phone;
+    document.getElementById('contact-call').href = 'tel:' + data.phone.replace(/\s/g,'');
+    document.getElementById('contact-sms').href  = 'sms:' + data.phone.replace(/\s/g,'');
+    if (data.note) {
+      document.getElementById('contact-note').textContent = data.note;
+      document.getElementById('contact-note-wrapper').style.display = 'block';
+    }
+    show('contact');
+  }
+
+  // ── REGISTER ─────────────────────────────────────────────
+  window.handleRegister = async function() {
+    const childName = document.getElementById('reg-childname').value.trim();
+    const phone     = document.getElementById('reg-phone').value.trim();
+    const note      = document.getElementById('reg-note').value.trim();
+    const pin       = getPin('pin');
+
+    if (!childName) { toast('Vul de naam van het kind in.', true); return; }
+    if (!phone)     { toast('Vul een telefoonnummer in.', true); return; }
+    if (pin.length < 4 || pin.includes('')) { toast('Kies een 4-cijferige PIN.', true); return; }
+
+    try {
+      await setDoc(doc(db, 'bandjes', bandjeId), {
+        childName,
+        phone,
+        note,
+        pinHash:   hashPin(pin),
+        createdAt: new Date().toISOString(),
+      });
+      currentData = { childName, phone, note };
+      document.getElementById('success-name').textContent = childName;
+      show('success');
+    } catch(err) {
+      console.error(err);
+      toast('Opslaan mislukt. Probeer opnieuw.', true);
+    }
+  };
+
+  // ── PIN SCREEN ────────────────────────────────────────────
+  window.showPinScreen = function(action) {
+    pinAction = action;
+    [0,1,2,3].forEach(i => document.getElementById('mpin' + i).value = '');
+    show('pin');
+    setTimeout(() => document.getElementById('mpin0').focus(), 100);
+  };
+
+  window.verifyPin = async function() {
+    const pin = getPin('mpin');
+    if (pin.length < 4) { toast('Voer een volledige PIN in.', true); return; }
+    try {
+      const snap = await getDoc(doc(db, 'bandjes', bandjeId));
+      if (!snap.exists()) { toast('Bandje niet gevonden.', true); return; }
+      const data = snap.data();
+      if (data.pinHash !== hashPin(pin)) { toast('Verkeerde PIN. Probeer opnieuw.', true); return; }
+      currentData = data;
+      if (pinAction === 'manage') {
+        document.getElementById('edit-childname').value = data.childName || '';
+        document.getElementById('edit-phone').value     = data.phone     || '';
+        document.getElementById('edit-note').value      = data.note      || '';
+        show('manage');
+      }
+    } catch(err) {
+      console.error(err);
+      toast('Fout. Probeer opnieuw.', true);
+    }
+  };
+
+  // ── UPDATE ────────────────────────────────────────────────
+  window.handleUpdate = async function() {
+    const childName = document.getElementById('edit-childname').value.trim();
+    const phone     = document.getElementById('edit-phone').value.trim();
+    const note      = document.getElementById('edit-note').value.trim();
+
+    if (!childName) { toast('Naam is verplicht.', true); return; }
+    if (!phone)     { toast('Telefoonnummer is verplicht.', true); return; }
+
+    try {
+      await updateDoc(doc(db, 'bandjes', bandjeId), { childName, phone, note, updatedAt: new Date().toISOString() });
+      currentData = { ...currentData, childName, phone, note };
+      toast('✅ Gegevens opgeslagen!');
+      showContact(currentData);
+    } catch(err) {
+      console.error(err);
+      toast('Opslaan mislukt.', true);
+    }
+  };
+
+  // ── DELETE ────────────────────────────────────────────────
+  window.confirmDelete = function() {
+    const ok = window.confirm('Ben je zeker? Alle gegevens worden permanent gewist en kunnen niet worden hersteld.');
+    if (!ok) return;
+    deleteData();
+  };
+
+  async function deleteData() {
+    try {
+      await deleteDoc(doc(db, 'bandjes', bandjeId));
+      show('deleted');
+    } catch(err) {
+      console.error(err);
+      toast('Verwijderen mislukt.', true);
+    }
+  }
+
+  // ── BACK ──────────────────────────────────────────────────
+  window.goBack = function() {
+    if (currentData) showContact(currentData);
+    else show('register');
+  };
+
+  // ── START ─────────────────────────────────────────────────
+  init();
+</script>
+</body>
+</html>
