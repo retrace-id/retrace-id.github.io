@@ -458,10 +458,10 @@
       <div class="form-group">
         <label>Kies een 4-cijferige PIN</label>
         <div class="pin-row">
-          <input class="pin-digit" id="pin0" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
-          <input class="pin-digit" id="pin1" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
-          <input class="pin-digit" id="pin2" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
-          <input class="pin-digit" id="pin3" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+          <input class="pin-digit" id="pin0" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
+          <input class="pin-digit" id="pin1" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
+          <input class="pin-digit" id="pin2" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
+          <input class="pin-digit" id="pin3" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
         </div>
         <p class="form-hint" style="text-align:center">Onthoud deze PIN — je hebt hem nodig om later gegevens te wijzigen of te verwijderen.</p>
       </div>
@@ -475,10 +475,10 @@
     <p class="screen-sub">Voer je 4-cijferige PIN in om je gegevens te beheren.</p>
     <div class="card blue">
       <div class="pin-row">
-        <input class="pin-digit" id="mpin0" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
-        <input class="pin-digit" id="mpin1" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
-        <input class="pin-digit" id="mpin2" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
-        <input class="pin-digit" id="mpin3" type="number" min="0" max="9" maxlength="1" inputmode="numeric" />
+        <input class="pin-digit" id="mpin0" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
+        <input class="pin-digit" id="mpin1" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
+        <input class="pin-digit" id="mpin2" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
+        <input class="pin-digit" id="mpin3" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" />
       </div>
       <button class="btn btn-primary" onclick="verifyPin()">Bevestig PIN</button>
       <button class="btn btn-secondary" onclick="goBack()">← Annuleren</button>
@@ -662,7 +662,7 @@
 
     if (!childName) { toast('Vul de naam van het kind in.', true); return; }
     if (!phone)     { toast('Vul een telefoonnummer in.', true); return; }
-    if (pin.length < 4 || pin.includes('')) { toast('Kies een 4-cijferige PIN.', true); return; }
+    if (pin.length < 4 || !/^\d{4}$/.test(pin)) { toast('Kies een 4-cijferige PIN.', true); return; }
 
     try {
       await setDoc(doc(db, 'bandjes', bandjeId), {
